@@ -1,0 +1,5 @@
+- [x] Create `app/libs` directory and placeholder file for NeptuneLite SDK JAR.
+- [x] Configure `app/build.gradle.kts` to include local JAR dependencies.
+- [x] Implement `PaxSdkManager` for SDK binding and `IDal` initialization.
+- [x] Initialize `PaxSdkManager` in `MainActivity`.
+- [ ] Verify build (Requires user to provide the actual JAR file).
