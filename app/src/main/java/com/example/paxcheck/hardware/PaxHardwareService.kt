@@ -29,7 +29,14 @@ class PaxHardwareService(private val sdkManager: PaxSdkManager) : HardwareServic
         val mag = dal.getMag()
         return@withContext try {
             Log.d(TAG, "MSR: Opening Mag...")
-            mag.open()
+            try {
+                mag.open()
+            } catch (e: Throwable) {
+                Log.w(TAG, "MSR: Open failed, attempting recovery close and re-open: ${e.message}")
+                try { mag.close() } catch (_: Throwable) {}
+                mag.open()
+            }
+
             Log.d(TAG, "MSR: Resetting Mag...")
             mag.reset()
             
@@ -43,7 +50,8 @@ class PaxHardwareService(private val sdkManager: PaxSdkManager) : HardwareServic
                     if (mag.isSwiped()) {
                         Log.i(TAG, "MSR: Swipe detected!")
                         trackData = mag.read()
-                        if (trackData != null && (!trackData.track2.isNullOrEmpty() || !trackData.track1.isNullOrEmpty())) {
+                        Log.d(TAG, "MSR: Read result - resultCode: ${trackData?.resultCode}, t1: [${trackData?.track1}], t2: [${trackData?.track2}], t3: [${trackData?.track3}]")
+                        if (trackData != null && (!trackData.track1.isNullOrEmpty() || !trackData.track2.isNullOrEmpty() || !trackData.track3.isNullOrEmpty())) {
                             break
                         } else {
                             Log.w(TAG, "MSR: Swipe detected but track data is empty, retrying...")
@@ -61,10 +69,11 @@ class PaxHardwareService(private val sdkManager: PaxSdkManager) : HardwareServic
                     lastLogTime = currentTime
                 }
                 
-                delay(100)
+                delay(200)
             }
 
-            if (trackData != null) {
+            if (trackData != null && 
+                (!trackData.track1.isNullOrEmpty() || !trackData.track2.isNullOrEmpty() || !trackData.track3.isNullOrEmpty())) {
                 Log.i(TAG, "MSR: Read successful")
                 Log.d(TAG, "MSR: Track1: [${trackData.track1 ?: ""}]")
                 Log.d(TAG, "MSR: Track2: [${trackData.track2 ?: ""}]")
@@ -78,8 +87,8 @@ class PaxHardwareService(private val sdkManager: PaxSdkManager) : HardwareServic
                     )
                 )
             } else {
-                Log.w(TAG, "MSR: Read timeout or no data")
-                HardwareResult.Error("Read timeout or no data")
+                Log.w(TAG, "MSR: Read timeout or no valid data (resultCode=${trackData?.resultCode})")
+                HardwareResult.Error("Read timeout or no valid data")
             }
         } catch (e: Throwable) {
             Log.e(TAG, "MSR: Error: ${e.message}", e)
@@ -106,19 +115,25 @@ class PaxHardwareService(private val sdkManager: PaxSdkManager) : HardwareServic
             Log.d(TAG, "Printer: Initializing...")
             printer.init()
             
+            // Only fail on critical hardware/paper status errors (1=out of paper, 4=overheat, 8=voltage too low, 9=paper jam)
             Log.d(TAG, "Printer: Checking status...")
-            val status = printer.getStatus()
-            if (status != 0) {
-                val statusMsg = getPrinterErrorMessage(status)
-                Log.e(TAG, "Printer: Status error: $status ($statusMsg)")
-                return@withContext HardwareResult.Error("Printer Error: $statusMsg ($status)")
+            try {
+                val status = printer.getStatus()
+                Log.d(TAG, "Printer: Status code: $status")
+                if (status == 1 || status == 4 || status == 8 || status == 9) {
+                    val statusMsg = getPrinterErrorMessage(status)
+                    Log.e(TAG, "Printer: Critical status error: $status ($statusMsg)")
+                    return@withContext HardwareResult.Error("Printer Error: $statusMsg ($status)")
+                }
+            } catch (e: Throwable) {
+                Log.w(TAG, "Printer: getStatus threw exception (ignoring): ${e.message}")
             }
             
             Log.d(TAG, "Printer: Creating receipt bitmap...")
             val bitmap = createReceiptBitmap(text)
             
-            Log.d(TAG, "Printer: Printing bitmap...")
-            printer.printBitmap(bitmap)
+            Log.d(TAG, "Printer: Printing bitmap with mono threshold...")
+            printer.printBitmapWithMonoThreshold(bitmap, 128)
             
             Log.d(TAG, "Printer: Stepping paper (150)...")
             printer.step(150)

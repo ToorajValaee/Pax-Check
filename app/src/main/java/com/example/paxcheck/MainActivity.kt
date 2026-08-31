@@ -1,5 +1,6 @@
 package com.example.paxcheck
 
+import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -22,6 +23,17 @@ import com.example.paxcheck.ui.theme.PaxCheckTheme
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val permissions = arrayOf(
+            "com.pax.permission.ICC",
+            "com.pax.permission.PICC",
+            "com.pax.permission.MAG",
+            "com.pax.permission.PRINTER",
+            "com.pax.permission.PED"
+        )
+        if (permissions.any { checkSelfPermission(it) != PackageManager.PERMISSION_GRANTED }) {
+            requestPermissions(permissions, 100)
+        }
 
         val sdkManager = PaxSdkManager.getInstance(this)
         sdkManager.init()
