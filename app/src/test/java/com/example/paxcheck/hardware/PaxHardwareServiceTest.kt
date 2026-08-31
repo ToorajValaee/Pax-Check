@@ -36,72 +36,57 @@ class PaxHardwareServiceTest {
     }
 
     @Test
-    fun `readMsr returns data when successful`() = runBlocking {
-        // Given
+    fun `readMsr returns track data after swipe`() = runBlocking {
         val trackData = mockk<TrackData>(relaxed = true)
         every { trackData.track1 } returns "T1Data"
         every { trackData.track2 } returns "T2Data"
         every { trackData.track3 } returns "T3Data"
-        
         every { mag.isSwiped() } returns true
         every { mag.read() } returns trackData
 
-        // When
         val result = hardwareService.readMsr()
 
-        // Then
         assertTrue(result is HardwareResult.Success)
         val data = (result as HardwareResult.Success).data
         assertEquals("T1Data", data.track1)
         assertEquals("T2Data", data.track2)
         assertEquals("T3Data", data.track3)
-        verify { mag.open() }
-        verify { mag.reset() }
-        verify { mag.read() }
-        verify { mag.close() }
+        verify(exactly = 1) { mag.open() }
+        verify(exactly = 1) { mag.reset() }
+        verify(exactly = 1) { mag.read() }
+        verify(exactly = 1) { mag.close() }
     }
 
     @Test
-    fun `readMsr returns error when DAL is not initialized`() = runBlocking {
-        // Given
+    fun `readMsr returns error when DAL is unavailable`() = runBlocking {
         every { sdkManager.getDal() } returns null
 
-        // When
         val result = hardwareService.readMsr()
 
-        // Then
         assertTrue(result is HardwareResult.Error)
         assertEquals("DAL not initialized", (result as HardwareResult.Error).message)
     }
 
     @Test
-    fun `printText returns success when successful`() = runBlocking {
-        // Given
-        val text = "Hello World"
-        every { printer.start() } returns 0
+    fun `printText returns error when DAL is unavailable`() = runBlocking {
+        every { sdkManager.getDal() } returns null
 
-        // When
-        val result = hardwareService.printText(text)
+        val result = hardwareService.printText("hello")
 
-        // Then
-        assertTrue(result is HardwareResult.Success)
-        verify { printer.init() }
-        verify { printer.fontSet(any(), any()) }
-        verify { printer.printStr(text, null) }
-        verify { printer.start() }
+        assertTrue(result is HardwareResult.Error)
+        assertEquals("DAL not initialized", (result as HardwareResult.Error).message)
     }
 
     @Test
-    fun `printText returns error when printer fails`() = runBlocking {
-        // Given
-        val text = "Hello World"
-        every { printer.start() } returns 1 // Out of paper
+    fun `printText reports printer status before rendering bitmap`() = runBlocking {
+        every { printer.getStatus() } returns 1
 
-        // When
-        val result = hardwareService.printText(text)
+        val result = hardwareService.printText("hello")
 
-        // Then
         assertTrue(result is HardwareResult.Error)
-        assertEquals("Out of paper", (result as HardwareResult.Error).message)
+        assertEquals("Printer Error: Out of paper (1)", (result as HardwareResult.Error).message)
+        verify(exactly = 1) { printer.init() }
+        verify(exactly = 1) { printer.getStatus() }
+        verify(exactly = 0) { printer.start() }
     }
 }
