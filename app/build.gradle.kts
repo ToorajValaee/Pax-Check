@@ -17,6 +17,19 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        // PAX A8900 / NeptuneLite SDK
+        ndk {
+            abiFilters.addAll(listOf("armeabi", "armeabi-v7a", "arm64-v8a"))
+        }
+    }
+
+    // Required by PAX NeptuneLite. The jar contains Java wrappers,
+    // but DeviceConfig and other DAL classes require matching native .so files.
+    sourceSets {
+        getByName("main") {
+            jniLibs.srcDirs("src/main/jniLibs")
+        }
     }
 
     buildTypes {
