@@ -35,7 +35,16 @@ fun DashboardScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("PAX Terminal Diagnostic Hub", style = MaterialTheme.typography.titleLarge) },
+                title = { 
+                    Column {
+                        Text("PAX Terminal Diagnostic Hub", style = MaterialTheme.typography.titleMedium)
+                        Text(
+                            text = "powered by badje.ir",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)
                 )
