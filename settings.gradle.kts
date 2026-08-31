@@ -22,6 +22,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "PAXCheck"
+rootProject.name = "Pax Check"
 include(":app")
  
