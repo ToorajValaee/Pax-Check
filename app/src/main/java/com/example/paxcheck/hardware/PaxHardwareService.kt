@@ -154,6 +154,56 @@ class PaxHardwareService(private val sdkManager: PaxSdkManager) : HardwareServic
         }
     }
 
+    override suspend fun readIcc(): HardwareResult<IccData> = withContext(Dispatchers.IO) {
+        val dal = sdkManager.getDal()
+        if (dal == null) {
+            Log.e(TAG, "ICC: DAL not initialized")
+            return@withContext HardwareResult.Error("DAL not initialized")
+        }
+
+        val icc = dal.getIcc()
+        val slot: Byte = 0 // Slot 0 (chip card slot)
+        return@withContext try {
+            Log.d(TAG, "ICC: Detecting card in slot $slot...")
+            val startTime = System.currentTimeMillis()
+            var atrBytes: ByteArray? = null
+
+            while (System.currentTimeMillis() - startTime < 30000) {
+                try {
+                    if (icc.detect(slot)) {
+                        Log.i(TAG, "ICC: Card detected! Initializing...")
+                        atrBytes = icc.init(slot)
+                        if (atrBytes != null && atrBytes.isNotEmpty()) {
+                            break
+                        }
+                    }
+                } catch (e: Throwable) {
+                    Log.w(TAG, "ICC: Polling/init error: ${e.message}")
+                }
+                delay(500)
+            }
+
+            if (atrBytes != null && atrBytes.isNotEmpty()) {
+                val atrHex = atrBytes.joinToString("") { "%02X".format(it) }
+                Log.i(TAG, "ICC: Init successful, ATR: $atrHex")
+                HardwareResult.Success(IccData(atrHex = atrHex, slot = slot.toInt()))
+            } else {
+                Log.w(TAG, "ICC: Read timeout or no card inserted")
+                HardwareResult.Error("IC Card read timeout or no card inserted")
+            }
+        } catch (e: Throwable) {
+            Log.e(TAG, "ICC: Error: ${e.message}", e)
+            HardwareResult.Error("SDK Error: ${e.javaClass.name}: ${e.message ?: "Unknown error"}")
+        } finally {
+            try {
+                icc.close(slot)
+                Log.d(TAG, "ICC: Closed slot $slot")
+            } catch (e: Throwable) {
+                Log.e(TAG, "ICC: Error closing slot: ${e.message}")
+            }
+        }
+    }
+
     /**
      * Renders text to a Bitmap for the PAX printer (384px width).
      */

@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.paxcheck.hardware.CardData
 import com.example.paxcheck.hardware.HardwareResult
 import com.example.paxcheck.hardware.HardwareService
+import com.example.paxcheck.hardware.IccData
 import com.example.paxcheck.sdk.PaxSdkManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -27,6 +28,12 @@ class HardwareViewModel(
 
     private val _isReading = MutableStateFlow(false)
     val isReading: StateFlow<Boolean> = _isReading.asStateFlow()
+
+    private val _iccData = MutableStateFlow<IccData?>(null)
+    val iccData: StateFlow<IccData?> = _iccData.asStateFlow()
+
+    private val _isReadingIcc = MutableStateFlow(false)
+    val isReadingIcc: StateFlow<Boolean> = _isReadingIcc.asStateFlow()
 
     private val _printStatus = MutableStateFlow<String?>(null)
     val printStatus: StateFlow<String?> = _printStatus.asStateFlow()
@@ -70,6 +77,27 @@ class HardwareViewModel(
                 }
             }
             _isReading.value = false
+        }
+    }
+
+    /**
+     * Triggers IC card (chip card) reading.
+     */
+    fun readIcc() {
+        viewModelScope.launch {
+            _isReadingIcc.value = true
+            _iccData.value = null
+            addLog("IC Card Read started (30s polling)")
+            when (val result = hardwareService.readIcc()) {
+                is HardwareResult.Success -> {
+                    _iccData.value = result.data
+                    addLog("IC Card Read successful: ATR [${result.data.atrHex}]")
+                }
+                is HardwareResult.Error -> {
+                    addLog("IC Card Read failed: ${result.message}")
+                }
+            }
+            _isReadingIcc.value = false
         }
     }
 

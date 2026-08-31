@@ -10,6 +10,14 @@ data class CardData(
 )
 
 /**
+ * Data class representing IC card (chip card) data.
+ */
+data class IccData(
+    val atrHex: String,
+    val slot: Int
+)
+
+/**
  * Sealed class representing the result of a hardware operation.
  */
 sealed class HardwareResult<out T> {
@@ -18,7 +26,7 @@ sealed class HardwareResult<out T> {
 }
 
 /**
- * Interface defining hardware operations for MSR and Printer.
+ * Interface defining hardware operations for MSR, Printer, and IC Card.
  */
 interface HardwareService {
     /**
@@ -33,4 +41,10 @@ interface HardwareService {
      * @return [HardwareResult] indicating success or failure with message.
      */
     suspend fun printText(text: String): HardwareResult<Unit>
+
+    /**
+     * Reads IC card (chip card) data from the smart card slot.
+     * @return [HardwareResult] containing [IccData] or error message.
+     */
+    suspend fun readIcc(): HardwareResult<IccData>
 }
