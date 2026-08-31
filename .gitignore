@@ -1,15 +1,14 @@
 *.iml
-.gradle
-/local.properties
-/.idea/caches
-/.idea/libraries
-/.idea/modules.xml
-/.idea/workspace.xml
-/.idea/navEditor.xml
-/.idea/assetWizardSettings.xml
-.DS_Store
-/build
-/captures
-.externalNativeBuild
-.cxx
+.gradle/
+.idea/
 local.properties
+.DS_Store
+
+build/
+**/build/
+captures/
+.externalNativeBuild/
+.cxx/
+
+# Keep the vendor PAX SDK JAR committed intentionally.
+!app/libs/NeptuneLiteApi_V4.15.00_20250606.jar
