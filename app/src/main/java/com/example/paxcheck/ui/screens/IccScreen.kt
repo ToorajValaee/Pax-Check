@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Print
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -102,6 +103,26 @@ fun IccScreen(
                         style = MaterialTheme.typography.bodySmall.copy(fontFamily = FontFamily.Monospace),
                         modifier = Modifier.padding(start = 8.dp)
                     )
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Button(
+                    onClick = {
+                        val receiptText = """
+                            --- IC CARD RECEIPT ---
+                            Slot: ${iccData?.slot}
+                            ATR (Hex):
+                            ${iccData?.atrHex ?: "N/A"}
+                            -----------------------
+                        """.trimIndent()
+                        viewModel.printTest(receiptText)
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Icon(Icons.Default.Print, contentDescription = null)
+                    Spacer(modifier = Modifier.size(8.dp))
+                    Text("Print IC Card Data")
                 }
             } else if (isReading) {
                 Text(

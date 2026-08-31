@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Print
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -98,6 +99,31 @@ fun MsrScreen(
                 TrackDataItem("Track 1", msrData?.track1)
                 TrackDataItem("Track 2", msrData?.track2)
                 TrackDataItem("Track 3", msrData?.track3)
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Button(
+                    onClick = {
+                        val receiptText = """
+                            --- MSR TEST RECEIPT ---
+                            Track 1:
+                            ${msrData?.track1 ?: "N/A"}
+                            
+                            Track 2:
+                            ${msrData?.track2 ?: "N/A"}
+                            
+                            Track 3:
+                            ${msrData?.track3 ?: "N/A"}
+                            ------------------------
+                        """.trimIndent()
+                        viewModel.printTest(receiptText)
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Icon(Icons.Default.Print, contentDescription = null)
+                    Spacer(modifier = Modifier.size(8.dp))
+                    Text("Print MSR Data")
+                }
             } else if (isReading) {
                 Text(
                     text = "Waiting for card swipe...",
