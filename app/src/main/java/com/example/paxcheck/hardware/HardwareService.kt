@@ -18,6 +18,14 @@ data class IccData(
 )
 
 /**
+ * Data class representing contactless card (NFC / PICC) data.
+ */
+data class PiccData(
+    val cardType: Int,
+    val serialNumberHex: String
+)
+
+/**
  * Sealed class representing the result of a hardware operation.
  */
 sealed class HardwareResult<out T> {
@@ -26,7 +34,7 @@ sealed class HardwareResult<out T> {
 }
 
 /**
- * Interface defining hardware operations for MSR, Printer, and IC Card.
+ * Interface defining hardware operations for MSR, Printer, IC Card, and Contactless Card.
  */
 interface HardwareService {
     /**
@@ -47,4 +55,10 @@ interface HardwareService {
      * @return [HardwareResult] containing [IccData] or error message.
      */
     suspend fun readIcc(): HardwareResult<IccData>
+
+    /**
+     * Reads contactless card (NFC / PICC) data from the contactless reader.
+     * @return [HardwareResult] containing [PiccData] or error message.
+     */
+    suspend fun readPicc(): HardwareResult<PiccData>
 }

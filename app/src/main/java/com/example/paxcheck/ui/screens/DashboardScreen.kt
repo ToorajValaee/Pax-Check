@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CreditCard
 import androidx.compose.material.icons.filled.Devices
+import androidx.compose.material.icons.filled.Nfc
 import androidx.compose.material.icons.filled.Print
 import androidx.compose.material.icons.filled.SdCard
 import androidx.compose.material3.Button
@@ -34,6 +35,7 @@ fun DashboardScreen(
     onNavigateToMsr: () -> Unit,
     onNavigateToPrinter: () -> Unit,
     onNavigateToIcc: () -> Unit,
+    onNavigateToPicc: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val sdkStatus by viewModel.sdkStatus.collectAsState()
@@ -102,13 +104,26 @@ fun DashboardScreen(
 
         Spacer(modifier = Modifier.size(16.dp))
 
-        Button(
-            onClick = onNavigateToIcc,
-            modifier = Modifier.fillMaxWidth()
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Icon(Icons.Default.CreditCard, contentDescription = null)
-            Spacer(Modifier.size(8.dp))
-            Text("IC Card (Chip) Test")
+            Button(
+                onClick = onNavigateToIcc,
+                modifier = Modifier.weight(1f)
+            ) {
+                Icon(Icons.Default.CreditCard, contentDescription = null)
+                Spacer(Modifier.size(8.dp))
+                Text("IC Card (Chip)")
+            }
+            Button(
+                onClick = onNavigateToPicc,
+                modifier = Modifier.weight(1f)
+            ) {
+                Icon(Icons.Default.Nfc, contentDescription = null)
+                Spacer(Modifier.size(8.dp))
+                Text("Contactless (NFC)")
+            }
         }
 
         Spacer(modifier = Modifier.weight(1f))

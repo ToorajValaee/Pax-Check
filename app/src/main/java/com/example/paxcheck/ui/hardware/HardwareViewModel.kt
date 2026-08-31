@@ -7,6 +7,7 @@ import com.example.paxcheck.hardware.CardData
 import com.example.paxcheck.hardware.HardwareResult
 import com.example.paxcheck.hardware.HardwareService
 import com.example.paxcheck.hardware.IccData
+import com.example.paxcheck.hardware.PiccData
 import com.example.paxcheck.sdk.PaxSdkManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -34,6 +35,12 @@ class HardwareViewModel(
 
     private val _isReadingIcc = MutableStateFlow(false)
     val isReadingIcc: StateFlow<Boolean> = _isReadingIcc.asStateFlow()
+
+    private val _piccData = MutableStateFlow<PiccData?>(null)
+    val piccData: StateFlow<PiccData?> = _piccData.asStateFlow()
+
+    private val _isReadingPicc = MutableStateFlow(false)
+    val isReadingPicc: StateFlow<Boolean> = _isReadingPicc.asStateFlow()
 
     private val _printStatus = MutableStateFlow<String?>(null)
     val printStatus: StateFlow<String?> = _printStatus.asStateFlow()
@@ -98,6 +105,27 @@ class HardwareViewModel(
                 }
             }
             _isReadingIcc.value = false
+        }
+    }
+
+    /**
+     * Triggers contactless card (NFC / PICC) reading.
+     */
+    fun readPicc() {
+        viewModelScope.launch {
+            _isReadingPicc.value = true
+            _piccData.value = null
+            addLog("Contactless (NFC) Read started (30s polling)")
+            when (val result = hardwareService.readPicc()) {
+                is HardwareResult.Success -> {
+                    _piccData.value = result.data
+                    addLog("Contactless Read successful: UID [${result.data.serialNumberHex}]")
+                }
+                is HardwareResult.Error -> {
+                    addLog("Contactless Read failed: ${result.message}")
+                }
+            }
+            _isReadingPicc.value = false
         }
     }
 

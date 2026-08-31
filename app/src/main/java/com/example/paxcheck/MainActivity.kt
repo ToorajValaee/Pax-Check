@@ -18,6 +18,7 @@ import com.example.paxcheck.ui.navigation.NavRoutes
 import com.example.paxcheck.ui.screens.DashboardScreen
 import com.example.paxcheck.ui.screens.IccScreen
 import com.example.paxcheck.ui.screens.MsrScreen
+import com.example.paxcheck.ui.screens.PiccScreen
 import com.example.paxcheck.ui.screens.PrinterScreen
 import com.example.paxcheck.ui.theme.PaxCheckTheme
 
@@ -63,7 +64,8 @@ fun MainNavigation(viewModel: HardwareViewModel) {
             viewModel = viewModel,
             onNavigateToMsr = { route = NavRoutes.MsrTest },
             onNavigateToPrinter = { route = NavRoutes.PrinterTest },
-            onNavigateToIcc = { route = NavRoutes.IccTest }
+            onNavigateToIcc = { route = NavRoutes.IccTest },
+            onNavigateToPicc = { route = NavRoutes.PiccTest }
         )
 
         NavRoutes.MsrTest -> MsrScreen(
@@ -77,6 +79,11 @@ fun MainNavigation(viewModel: HardwareViewModel) {
         )
 
         NavRoutes.IccTest -> IccScreen(
+            viewModel = viewModel,
+            onBack = { route = NavRoutes.Dashboard }
+        )
+
+        NavRoutes.PiccTest -> PiccScreen(
             viewModel = viewModel,
             onBack = { route = NavRoutes.Dashboard }
         )

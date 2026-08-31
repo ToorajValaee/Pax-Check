@@ -8,6 +8,9 @@ import android.text.StaticLayout
 import android.text.TextPaint
 import android.util.Log
 import com.example.paxcheck.sdk.PaxSdkManager
+import com.pax.dal.entity.EDetectMode
+import com.pax.dal.entity.EPiccType
+import com.pax.dal.entity.PiccCardInfo
 import com.pax.dal.entity.TrackData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -200,6 +203,61 @@ class PaxHardwareService(private val sdkManager: PaxSdkManager) : HardwareServic
                 Log.d(TAG, "ICC: Closed slot $slot")
             } catch (e: Throwable) {
                 Log.e(TAG, "ICC: Error closing slot: ${e.message}")
+            }
+        }
+    }
+
+    override suspend fun readPicc(): HardwareResult<PiccData> = withContext(Dispatchers.IO) {
+        val dal = sdkManager.getDal()
+        if (dal == null) {
+            Log.e(TAG, "PICC: DAL not initialized")
+            return@withContext HardwareResult.Error("DAL not initialized")
+        }
+
+        val picc = dal.getPicc(EPiccType.INTERNAL)
+        return@withContext try {
+            try { picc.close() } catch (_: Throwable) {}
+            Log.d(TAG, "PICC: Opening Contactless Reader...")
+            picc.open()
+
+            Log.d(TAG, "PICC: Polling for contactless card (30s timeout)...")
+            val startTime = System.currentTimeMillis()
+            var cardInfo: PiccCardInfo? = null
+
+            while (System.currentTimeMillis() - startTime < 30000) {
+                try {
+                    cardInfo = picc.detect(EDetectMode.ISO14443_AB)
+                    if (cardInfo != null) {
+                        break
+                    }
+                } catch (_: Throwable) {
+                    // detect throws when no card is present
+                }
+                delay(200)
+            }
+
+            if (cardInfo != null) {
+                val serialHex = cardInfo.serialInfo?.joinToString("") { "%02X".format(it) } ?: "N/A"
+                Log.i(TAG, "PICC: Card detected! Type: ${cardInfo.cardType}, UID: $serialHex")
+                HardwareResult.Success(
+                    PiccData(
+                        cardType = cardInfo.cardType.toInt(),
+                        serialNumberHex = serialHex
+                    )
+                )
+            } else {
+                Log.w(TAG, "PICC: Read timeout or no contactless card detected")
+                HardwareResult.Error("Contactless card read timeout or no card detected")
+            }
+        } catch (e: Throwable) {
+            Log.e(TAG, "PICC: Error: ${e.message}", e)
+            HardwareResult.Error("SDK Error: ${e.javaClass.name}: ${e.message ?: "Unknown error"}")
+        } finally {
+            try {
+                picc.close()
+                Log.d(TAG, "PICC: Closed Contactless Reader")
+            } catch (e: Throwable) {
+                Log.e(TAG, "PICC: Error closing: ${e.message}")
             }
         }
     }
