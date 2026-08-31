@@ -1,8 +1,16 @@
 package com.example.paxcheck.hardware
 
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Color
+import android.text.Layout
+import android.text.StaticLayout
+import android.text.TextPaint
 import android.util.Log
 import com.example.paxcheck.sdk.PaxSdkManager
+import com.pax.dal.entity.TrackData
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 
 /**
@@ -11,60 +19,175 @@ import kotlinx.coroutines.withContext
  */
 class PaxHardwareService(private val sdkManager: PaxSdkManager) : HardwareService {
 
-    override suspend fun readMsr(): String? = withContext(Dispatchers.IO) {
+    override suspend fun readMsr(): HardwareResult<CardData> = withContext(Dispatchers.IO) {
         val dal = sdkManager.getDal()
         if (dal == null) {
-            Log.e(TAG, "DAL not initialized")
-            return@withContext null
+            Log.e(TAG, "MSR: DAL not initialized")
+            return@withContext HardwareResult.Error("DAL not initialized")
         }
 
-        val msr = dal.getMsr()
+        val mag = dal.getMag()
         return@withContext try {
-            Log.d(TAG, "Opening MSR...")
-            msr.open()
-            msr.reset()
-            Log.d(TAG, "Reading MSR data...")
-            val data = msr.read()
-            Log.d(TAG, "MSR read successful")
-            data
-        } catch (e: Exception) {
-            Log.e(TAG, "Error reading MSR: ${e.message}", e)
-            null
+            Log.d(TAG, "MSR: Opening Mag...")
+            mag.open()
+            Log.d(TAG, "MSR: Resetting Mag...")
+            mag.reset()
+            
+            Log.d(TAG, "MSR: Polling for card swipe (30s timeout)...")
+            val startTime = System.currentTimeMillis()
+            var trackData: TrackData? = null
+            
+            var lastLogTime = 0L
+            while (System.currentTimeMillis() - startTime < 30000) {
+                try {
+                    if (mag.isSwiped()) {
+                        Log.i(TAG, "MSR: Swipe detected!")
+                        trackData = mag.read()
+                        if (trackData != null && (!trackData.track2.isNullOrEmpty() || !trackData.track1.isNullOrEmpty())) {
+                            break
+                        } else {
+                            Log.w(TAG, "MSR: Swipe detected but track data is empty, retrying...")
+                            mag.reset()
+                        }
+                    }
+                } catch (e: Throwable) {
+                    Log.e(TAG, "MSR: Polling error: ${e.message}")
+                }
+                
+                // Log every 5 seconds to show we are still alive
+                val currentTime = System.currentTimeMillis()
+                if (currentTime - lastLogTime > 5000) {
+                    Log.d(TAG, "MSR: Still waiting for swipe... (${(30000 - (currentTime - startTime)) / 1000}s left)")
+                    lastLogTime = currentTime
+                }
+                
+                delay(100)
+            }
+
+            if (trackData != null) {
+                Log.i(TAG, "MSR: Read successful")
+                Log.d(TAG, "MSR: Track1: [${trackData.track1 ?: ""}]")
+                Log.d(TAG, "MSR: Track2: [${trackData.track2 ?: ""}]")
+                Log.d(TAG, "MSR: Track3: [${trackData.track3 ?: ""}]")
+                
+                HardwareResult.Success(
+                    CardData(
+                        track1 = trackData.track1 ?: "",
+                        track2 = trackData.track2 ?: "",
+                        track3 = trackData.track3 ?: ""
+                    )
+                )
+            } else {
+                Log.w(TAG, "MSR: Read timeout or no data")
+                HardwareResult.Error("Read timeout or no data")
+            }
+        } catch (e: Throwable) {
+            Log.e(TAG, "MSR: Error: ${e.message}", e)
+            HardwareResult.Error("SDK Error: ${e.javaClass.name}: ${e.message ?: "Unknown error"}")
         } finally {
             try {
-                msr.close()
-                Log.d(TAG, "MSR closed")
-            } catch (e: Exception) {
-                Log.e(TAG, "Error closing MSR: ${e.message}")
+                mag.close()
+                Log.d(TAG, "MSR: Closed")
+            } catch (e: Throwable) {
+                Log.e(TAG, "MSR: Error closing: ${e.message}")
             }
         }
     }
 
-    override suspend fun printText(text: String): Boolean = withContext(Dispatchers.IO) {
+    override suspend fun printText(text: String): HardwareResult<Unit> = withContext(Dispatchers.IO) {
         val dal = sdkManager.getDal()
         if (dal == null) {
-            Log.e(TAG, "DAL not initialized")
-            return@withContext false
+            Log.e(TAG, "Printer: DAL not initialized")
+            return@withContext HardwareResult.Error("DAL not initialized")
         }
 
         val printer = dal.getPrinter()
         return@withContext try {
-            Log.d(TAG, "Initializing printer...")
+            Log.d(TAG, "Printer: Initializing...")
             printer.init()
-            Log.d(TAG, "Adding text to printer: $text")
-            printer.printStr(text, null)
-            Log.d(TAG, "Starting print job...")
+            
+            Log.d(TAG, "Printer: Checking status...")
+            val status = printer.getStatus()
+            if (status != 0) {
+                val statusMsg = getPrinterErrorMessage(status)
+                Log.e(TAG, "Printer: Status error: $status ($statusMsg)")
+                return@withContext HardwareResult.Error("Printer Error: $statusMsg ($status)")
+            }
+            
+            Log.d(TAG, "Printer: Creating receipt bitmap...")
+            val bitmap = createReceiptBitmap(text)
+            
+            Log.d(TAG, "Printer: Printing bitmap...")
+            printer.printBitmap(bitmap)
+            
+            Log.d(TAG, "Printer: Stepping paper (150)...")
+            printer.step(150)
+            
+            Log.d(TAG, "Printer: Starting print job...")
             val result = printer.start()
             if (result == 0) {
-                Log.i(TAG, "Printing successful")
-                true
+                Log.i(TAG, "Printer: Success")
+                HardwareResult.Success(Unit)
             } else {
-                Log.e(TAG, "Printing failed with code: $result")
-                false
+                val errorMsg = getPrinterErrorMessage(result)
+                Log.e(TAG, "Printer: Failed with code: $result ($errorMsg)")
+                HardwareResult.Error("Printer Error: $errorMsg ($result)")
             }
-        } catch (e: Exception) {
-            Log.e(TAG, "Error during printing: ${e.message}", e)
+        } catch (e: Throwable) {
+            Log.e(TAG, "Printer: Error: ${e.message}", e)
+            HardwareResult.Error("SDK Error: ${e.javaClass.name}: ${e.message ?: "Unknown error"}")
+        }
+    }
+
+    /**
+     * Renders text to a Bitmap for the PAX printer (384px width).
+     */
+    private fun createReceiptBitmap(text: String): Bitmap {
+        val width = 384
+        val textPaint = TextPaint().apply {
+            color = Color.BLACK
+            textSize = 24f
+            isAntiAlias = true
+        }
+
+        @Suppress("DEPRECATION")
+        val staticLayout = StaticLayout(
+            text,
+            textPaint,
+            width,
+            Layout.Alignment.ALIGN_NORMAL,
+            1.0f,
+            0.0f,
             false
+        )
+
+        val height = staticLayout.height
+        val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565)
+        val canvas = Canvas(bitmap)
+        canvas.drawColor(Color.WHITE)
+        staticLayout.draw(canvas)
+
+        return bitmap
+    }
+
+    /**
+     * Translates PAX Printer return codes to human-readable messages.
+     */
+    private fun getPrinterErrorMessage(result: Int): String {
+        return when (result) {
+            0 -> "Success"
+            1 -> "Out of paper"
+            2 -> "Device busy"
+            3 -> "The print data is too long"
+            4 -> "Printer overheat"
+            8 -> "Printer voltage too low"
+            9 -> "Printer paper jam"
+            -1 -> "General error"
+            -2 -> "Invalid parameter"
+            -3 -> "Device not supported"
+            -4 -> "Device occupied"
+            -16 -> "Communication error / Not initialized"
+            else -> "Unknown error code: $result"
         }
     }
 

@@ -1,57 +1,36 @@
-# Implementation Plan - Task 3: Compose UI and Navigation
+# Implementation Plan - Task 8: Error Mapping and Run Verify
 
-Implement the core UI screens, navigation, and shared logging for the Pax Check application.
+The goal is to enhance error reporting for hardware operations (MSR and Printer) by capturing descriptive error messages from `PaxHardwareService` and displaying them in the UI logs via `HardwareViewModel`.
 
 ## Proposed Changes
 
-### [sdk]
+### Hardware Service Layer
 
-#### [MODIFY] [PaxSdkManager.kt](file:///D:/Source/Repos/PaxCheck/app/src/main/java/com/example/paxcheck/sdk/PaxSdkManager.kt)
-- Add a `StateFlow<String>` to expose the initialization status of the SDK.
-- Update `init()` to set the status (e.g., "Initializing", "Connected", "Error").
+#### [MODIFY] [HardwareService.kt](file:///D:/Source/Repos/PaxCheck/app/src/main/java/com/example/paxcheck/hardware/HardwareService.kt)
+- Introduce `HardwareResult<T>` sealed class to represent success or failure with a message.
+- Update `readMsr()` to return `HardwareResult<CardData>`.
+- Update `printText()` to return `HardwareResult<Unit>`.
 
-### [ui]
+#### [MODIFY] [PaxHardwareService.kt](file:///D:/Source/Repos/PaxCheck/app/src/main/java/com/example/paxcheck/hardware/PaxHardwareService.kt)
+- Update implementation to return `HardwareResult.Success` or `HardwareResult.Error`.
+- Ensure `getPrinterErrorMessage(result)` is used to provide detailed error messages in `HardwareResult.Error`.
+- Capture exceptions and return them as `HardwareResult.Error`.
+
+### ViewModel Layer
 
 #### [MODIFY] [HardwareViewModel.kt](file:///D:/Source/Repos/PaxCheck/app/src/main/java/com/example/paxcheck/ui/hardware/HardwareViewModel.kt)
-- Add `logMessages: StateFlow<List<String>>` to store test logs.
-- Update `readMsr()` and `printTest()` to append messages to the log.
-- Add `sdkStatus: StateFlow<String>` by observing `PaxSdkManager`.
+- Update `readMsr()` and `printTest()` to handle `HardwareResult`.
+- Update `addLog()` calls to include specific error messages (e.g., "Printer Error: [Message]").
 
-#### [NEW] [NavRoutes.kt](file:///D:/Source/Repos/PaxCheck/app/src/main/java/com/example/paxcheck/ui/navigation/NavRoutes.kt)
-- Define `@Serializable` classes for routes: `Dashboard`, `MsrTest`, `PrinterTest`.
+### Testing
 
-#### [NEW] [DashboardScreen.kt](file:///D:/Source/Repos/PaxCheck/app/src/main/java/com/example/paxcheck/ui/screens/DashboardScreen.kt)
-- Display SDK status.
-- Navigation buttons to MSR and Printer tests.
-- Display a summary of the latest logs.
-
-#### [NEW] [MsrScreen.kt](file:///D:/Source/Repos/PaxCheck/app/src/main/java/com/example/paxcheck/ui/screens/MsrScreen.kt)
-- UI for triggering MSR read.
-- Display captured track data.
-- Shared log view.
-
-#### [NEW] [PrinterScreen.kt](file:///D:/Source/Repos/PaxCheck/app/src/main/java/com/example/paxcheck/ui/screens/PrinterScreen.kt)
-- Text field for user input.
-- "Print" button.
-- Shared log view.
-
-#### [NEW] [SharedLogView.kt](file:///D:/Source/Repos/PaxCheck/app/src/main/java/com/example/paxcheck/ui/components/SharedLogView.kt)
-- A reusable scrollable log component.
-
-#### [MODIFY] [MainActivity.kt](file:///D:/Source/Repos/PaxCheck/app/src/main/java/com/example/paxcheck/MainActivity.kt)
-- Set up Navigation 3 using `NavBackStack` and `NavDisplay`.
-- Wire up the ViewModel.
+#### [MODIFY] [PaxHardwareServiceTest.kt](file:///D:/Source/Repos/PaxCheck/app/src/test/java/com/example/paxcheck/hardware/PaxHardwareServiceTest.kt)
+- Update test cases to assert on `HardwareResult.Success` or `HardwareResult.Error`.
 
 ## Verification Plan
 
 ### Automated Tests
-- N/A for this task (focus on UI/Navigation).
+- Run `./gradlew :app:testDebugUnitTest --tests com.example.paxcheck.hardware.PaxHardwareServiceTest`
 
 ### Manual Verification
-- Launch the app and verify:
-    - SDK status shows "Connected" on the Dashboard.
-    - Navigating to MSR screen works.
-    - Navigating to Printer screen works.
-    - Printing text adds an entry to the log and shows "Print Success".
-    - Swiping a card (if simulated/real) shows data and log entry.
-    - The log is visible across screens.
+- Perform a build check: `./gradlew :app:assembleDebug`

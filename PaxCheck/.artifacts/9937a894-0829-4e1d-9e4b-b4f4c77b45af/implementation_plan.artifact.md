@@ -1,30 +1,31 @@
-# Implementation Plan - Task 1: Setup and SDK Integration
+# Implementation Plan - Task 2: Hardware Service Layer
 
-This plan covers the integration of the NeptuneLite SDK, configuration of project dependencies, and implementation of the core SDK binding logic to initialize the `IDal` interface.
+This task involves creating a robust hardware interaction layer that wraps PAX NeptuneLite SDK calls for MSR (card reading) and Thermal Printer functionality. The layer will provide a clean API for the UI to interact with, ensuring all hardware operations are non-blocking and use Kotlin Coroutines.
+
+## User Review Required
+
+> [!IMPORTANT]
+> The current implementation of `PaxHardwareService` and `HardwareService` already exists in the project. This plan focuses on refining these implementations, ensuring they adhere to the acceptance criteria, and adding unit tests for verification.
 
 ## Proposed Changes
 
-### [SDK Integration]
+### Hardware Service Layer
 
-#### [NEW] [PLACEHOLDER_SDK_REQUIRED.txt](file:///D:/Source/Repos/PaxCheck/app/libs/PLACEHOLDER_SDK_REQUIRED.txt)
-Create a `libs` directory and a placeholder file notifying the user to place the NeptuneLite SDK JAR there.
+#### [MODIFY] [PaxHardwareService.kt](file:///D:/Source/Repos/PaxCheck/app/src/main/java/com/example/paxcheck/hardware/PaxHardwareService.kt)
+- Refine error handling to provide more detailed logs.
+- Ensure all hardware-related exceptions are caught and handled gracefully.
+- Verify that `Dispatchers.IO` is used for all blocking SDK calls.
 
-#### [MODIFY] [build.gradle.kts](file:///D:/Source/Repos/PaxCheck/app/build.gradle.kts)
-Add the local JAR dependency to the `app` module.
-
-### [SDK Binding Logic]
-
-#### [NEW] [PaxSdkManager.kt](file:///D:/Source/Repos/PaxCheck/app/src/main/java/com/example/paxcheck/sdk/PaxSdkManager.kt)
-Implement a manager class to handle the NeptuneLite SDK initialization and provide access to the `IDal` interface.
-
-#### [MODIFY] [MainActivity.kt](file:///D:/Source/Repos/PaxCheck/app/src/main/java/com/example/paxcheck/MainActivity.kt)
-Initialize the `PaxSdkManager` in `onCreate` to ensure the SDK is ready for use.
+#### [NEW] [PaxHardwareServiceTest.kt](file:///D:/Source/Repos/PaxCheck/app/src/test/java/com/example/paxcheck/hardware/PaxHardwareServiceTest.kt)
+- Implement unit tests for `PaxHardwareService` using Mockito or MockK (depending on project setup).
+- Test successful MSR reading and error scenarios.
+- Test successful printing and error scenarios.
 
 ## Verification Plan
 
 ### Automated Tests
-- Run `./gradlew assembleDebug` to ensure the project builds successfully (even with a placeholder, the gradle configuration should be valid).
+- Run unit tests: `./gradlew :app:testDebugUnitTest --tests "com.example.paxcheck.hardware.PaxHardwareServiceTest"`
 
 ### Manual Verification
-- Verify that the `libs` folder is created and the `build.gradle.kts` correctly references it.
-- Inspect the `PaxSdkManager` implementation for correct SDK initialization patterns.
+- Build the app to ensure no compilation errors: `./gradlew :app:assembleDebug`
+- Observe logs during execution (if a device were available) to verify asynchronous execution.

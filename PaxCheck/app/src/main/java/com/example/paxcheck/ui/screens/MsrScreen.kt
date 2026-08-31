@@ -6,10 +6,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -21,6 +24,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import com.example.paxcheck.ui.components.SharedLogView
 import com.example.paxcheck.ui.hardware.HardwareViewModel
@@ -33,6 +37,7 @@ fun MsrScreen(
     modifier: Modifier = Modifier
 ) {
     val msrData by viewModel.msrData.collectAsState()
+    val isReading by viewModel.isReading.collectAsState()
     val logs by viewModel.logMessages.collectAsState()
 
     Scaffold(
@@ -63,9 +68,20 @@ fun MsrScreen(
 
             Button(
                 onClick = { viewModel.readMsr() },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                enabled = !isReading
             ) {
-                Text("Start Reading MSR")
+                if (isReading) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(24.dp),
+                        color = MaterialTheme.colorScheme.onPrimary,
+                        strokeWidth = 2.dp
+                    )
+                    Spacer(modifier = Modifier.size(8.dp))
+                    Text("Polling...")
+                } else {
+                    Text("Start Reading MSR")
+                }
             }
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -76,17 +92,41 @@ fun MsrScreen(
                 modifier = Modifier.align(Alignment.Start)
             )
             
-            Text(
-                text = msrData ?: "No data captured",
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp)
-            )
+            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+
+            if (msrData != null) {
+                TrackDataItem("Track 1", msrData?.track1)
+                TrackDataItem("Track 2", msrData?.track2)
+                TrackDataItem("Track 3", msrData?.track3)
+            } else if (isReading) {
+                Text(
+                    text = "Waiting for card swipe...",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.secondary
+                )
+            } else {
+                Text(
+                    text = "No data captured",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.outline
+                )
+            }
 
             Spacer(modifier = Modifier.weight(1f))
 
             SharedLogView(logs = logs)
         }
+    }
+}
+
+@Composable
+fun TrackDataItem(label: String, value: String?) {
+    Column(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
+        Text(text = label, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
+        Text(
+            text = value ?: "N/A",
+            style = MaterialTheme.typography.bodySmall.copy(fontFamily = FontFamily.Monospace),
+            modifier = Modifier.padding(start = 8.dp)
+        )
     }
 }
