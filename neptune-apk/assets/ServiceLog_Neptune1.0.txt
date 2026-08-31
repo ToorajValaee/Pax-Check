@@ -1,0 +1,181 @@
+#20170815  L1.8
+1.DAL 修复在A920C+上不能调用paxScanner的问题
+#20170623  L1.4
+1.GL  优化CommTcpClient的connect方法
+2.GL  修复db的dropAllTable()方法未关闭Cursor
+3.GL  优化AlgoSal的encryptWithPrivateKey()、encryptWithPublicKey()方法
+#20170517  L1.3
+1.GL  优化DB的find的效率
+*************
+*20170401发布*
+*************
+停止接口更新, 请切换到NeptuneLite
+*************
+*20170303发布*
+*************
+#20170303 L6.6
+1.DAL:优化sys.getTerminfo读取sn后面有乱码数据的问题
+2.DAL：修复外置扫码枪无法立即关闭的问题
+3.GL:优化蓝牙搜索
+4.GL:iso8583支持65域为普通域(而非标准tertiary bitmap),增加接口:
+  public boolean isSupportTertiaryBitmap();
+  public IIso8583Entity setSupportTertiaryBitmap(boolean flag);
+5.GL:ImgProcessingBitmapConvertor 优化converArgbToMono方法
+6.PED:修复国密相关接口异常处理错误
+7.修复picc,icc的isoCommandByApdu接口中ApduSendInfo的commandLen与dataIn必须指定长度的问题。
+
+#20170217
+1.DAL:解决Android5.X上无法打开移动网络的问题。
+2.EMV:修改获取g_env在5.1.1上多次调用有时候会出错的问题.
+3.IPPI：修改数据库存储路径，增加测试版提示
+4.IPPS： 当IPPI版本高于Neptune时，改为提示更新Neptune，并分别显示IPPI与Neptune版本号
+*************
+*  0122发布 *
+*************
+#20170122  L6.5
+1.GL: SSL 农信后台下IC卡参数时报接收错误，无法完成整个下载过程。
+2.GL: Ipage中处理带\n的字符串时换行行为不符合预期
+3.DAL: modem同步接收会出现重复数据
+4.DAL: 串口COM0 不支持8,e,1
+5.DAL: d800 以太网静态IP设置错误,无法使用
+6.GL: db支持transaction
+7.DAL: modem增加支持非阻塞拨号
+#20170119  
+1.DAL 处理APN切换
+2.DAL modemManager.modemCheck() 返回值中 8 9返回值的处理
+3.EMV 解决emvContinue返回值不匹配问题
+4.EMV 走联机Q时，在卡号确认之前加上提示音
+5.EMV qpboc流程的异常文件检查回调中，增加CID类型的判断
+6.EMV 将cClssCheckExceptionFile_Pboc的返回值改 EMV_DENIAL;
+7.EMV Qpboc流程中，在回调中处理判断卡号是否在异常文件中
+8.EMV 修正接触ic卡电子现金消费要检查异常文件，借贷记不用
+9.EMV 增加g_readLogFlg变量，控制电子现金查余额，查交易日志时在选择应用后无需发GPO指令
+10.EMV 修复getItemNum出现崩溃的bug
+11.EMV 修复getItemNum时JNI中会崩溃的bug
+12.EMV 将一些依赖库移到lib文件夹下,同时相应修改mk文件
+13.EMV add lib dir  优化mk文件
+14.GL db增加 switchToTable()、 beginTransaction()、 endTransaction()接口
+15.GL ssl: 农信后台下IC卡参数时报接收错误，无法完成整个下载过程。抓包发现，后台每次连接下发一个CAPK后都会关闭连接。 导致接收线程会异常结束，接收函数对异常处理逻辑有错误。
+16.GL IDb.AEntityBase 增加 clearId(), 用于处理“GL: 一个DB中两张完全相同结构的表，从表A中读取一条记录后写入表B会报错。”
+17.IPPS 新增显示app列表功能
+18.IPPS 修复抛异常bug与线程锁bug
+19.IPPSInterFace 修复增加LocalIP属性
+20.IPPSInterFace EOperationType 新增枚举    DEFAULT EReaderType 新增接口 DEFAULT PollingResult 默认值  修改
+*************
+*  0103发布 *
+*************
+#20161228
+1.IPPS 修复T75固件上Neptune无法运行的bug
+2.IPPS 修复polling时有异常不抛异常的bug
+3.IPPS 增加polling时返回值默认值
+4.DAL 新增接口 setAmount(String amount)	
+5.GL 解决中英文排版换行问题
+6.IPPI 更新polling方法中注释中readerType
+7.IPPSInf 更新EOperationType枚举，更新EReaderType枚举
+#20161216
+1.DAL icc，picc返回值报空bug处理
+2.DAL 修改ERoute中LAN为MOBILE
+3.IPPI 新增showIdleScreen接口
+4.IPPI ped，picc，scanner，只能获取一次instance，无法切换内外置bug处理
+5.IPPS 增加验证失败列表和未启动列表
+6.IPPS 提高Neptune的服务优先级，避免被杀
+7.IPPSInf EReaderType 增加枚举，使满足所有涉及PICC的类型均区分为PICC和PICCEXTERNAL
+8.GL unpack ANS定长域时如果有非UTF-8字符(如GBK)会出错
+9.GL paddingChar的处理，当 paddingChar 为多字节时，取第1字节
+10.GL IDb.AEntityBase 增加 clearId()接口, 用于处理“一个DB中两张完全相同结构的表，从表A中读取一条记录后写入表B会报错。”
+11.GL 之前已解决的BUG:  江西银行项目，SSL, 连接的后台为 Ip：59.52.78.154  Port：28033, 连接会卡5~8秒以上.    经过跟踪发现，即便使用IP地址也会进行DNS（5~8秒），导致SSL协商延后。
+TCP 也同样可能发生,修复
+12.EMV 增加g_readLogFlg变量，控制电子现金查余额，查交易日志时在选择应用后无需发GPO指令
+13.EMV 修正接触ic卡电子现金消费要检查异常文件，借贷记不用。
+14.EMV Qpboc流程中，在回调中处理判断卡号是否在异常文件中
+15.EMV 将cClssCheckExceptionFile_Pboc的返回值改 EMV_DENIAL;
+若QPboc在GPO处理后返回AAC时(在黑名单中)，再去发GetData，卡片不给返回，等待超时，应用看起来很卡
+16.EMV qpboc流程的异常文件检查回调中，增加CID类型的判断
+17.EMV 走联机Q(非接简易流程)时，在卡号确认之前加上提示音
+*************
+*  1130发布 *
+*************
+#20161128
+1.GL IPage支持设置行间距
+2.IPPI 增加接口setRoute(String host,ERoute route)
+3.IPPI 增加接口使支持Sle4442Manager
+4.IPPI 增加cancelInput接口 ped
+5.IPPI 增加isocommand接口 icc  picc
+#20161118
+1.DAL 当APN为空串时，也不应该切换，底层的APN切换会导致 mobile connection 断开
+2。DAL 测试发现有些4G卡切换APN后通讯有时成功，有时失败
+3.IPPI 新增接口setWifiSleepPolicy(EWifiSleepPolicy policy)
+4.IPPI 新增多路通讯接口enableMult()
+5.IPPI 增加DeviceListener回调函数
+6.IPPS 增加getDataCommand函数
+#20161104
+1.GL 增加取8583 某个或某些field 打包后的数据
+2.GL 8583 增加清除某个field使其不参与打包，用于动态灵活决定某域是否打包的场合
+3.GL SSL: 江西银行项目，SSL, 连接的后台为 Ip：59.52.78.154 Port：28033, 连接会卡5~8秒以上
+4.GL db dao增加 dropAllTable()接口，删除该表所在db下包含的所有表
+5.GL db, find all, find by condition 有多个输出时默认按 id 升序来排序
+6.EMV 增加一个接口，读圈存后的电子现金余额
+7.DAL 更新posapi
+8.IPPI 刷卡时，又时刷卡成功，但没有磁道2，则继续
+9.IPPS logo更新
+10.解决candist在序列化传输过程中痴线异常问题
+*************
+*  1025发布 *
+*************
+#20161025
+1.DAL 枚举修改
+2.IPPI 版本号修改
+3.IPPS 修改service
+4.IPPS IPPService改成Neptune
+5.IPPS 发布release版本
+#20161017
+1.DAL 增加接口时间设置，获取时间
+2.DAL 新增打印图片接口
+3.DAL bug处理，添加异常处理
+4.DAL 更新posapi
+5.IPPI 注释更新
+#20161009
+1.DAL 增加研发提供的sys类函数
+2.IPPSInf printBitmap 注释补充
+#20160920
+1.IPPS Exceptions 增加中文报错信息
+*************
+*  0918发布 *
+*************
+#20160913  L5.2
+1.GL 增加数据库加密所使用到的库
+#20160912  L5.1
+1.DAL 增加外置密码键盘
+2.DAL 修改PICC, 支持外置读卡器
+#20160901  L4.1
+1.DAL camera更名成scanner
+2.IPPS camera更名成scanner, 异步获取服务对象修改为同步, 整合dal报错码
+3.IPPI 配合IPPS调整, 异常返回类型由int修改为枚举
+4.EMV 报错码整合
+*************
+*  0725发布 *
+*************
+#20160722  L3.1
+1.GL imgprocessing增加generateBarCode,createPage,pageToBitmap
+2.GL DB修改createDb为getDb,同时增加监听
+3.EMV 接口规范重构
+#20160628  L2.3
+1.DAL ETermInfoKey支持更丰富底层版本
+#20160623  L2.2
+1.DAL PED增加getSN接口
+#20160617  L2.1
+1.DAL 去除打印selectFont接口
+2.DAL IIcc添加light接口
+3.DAL ISys中setLed接口移到IPicc里
+4.GL 去除图像处理setRgbToMonoAlgor接口
+5.GL 增加bitmapToJbig，bitmapToMonoDots和bitmapToMonoBmp三个函数的参数
+#20160613  L1.2
+1.IPPI 修复翻屏bug
+2.IPPS 界面新增on service app
+3.GL 修改modem param的接口
+*************
+*  0520发布 *
+*************
+#20160520  L1.1
+1.首发版本上线
+

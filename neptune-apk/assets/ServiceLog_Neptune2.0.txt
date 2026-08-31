@@ -1,0 +1,128 @@
+********************
+* V2.04.00 Release *
+********************
+#20180329  L1.16
+1.Added an interface in PED module to support DES with CBC mode:
+  1).byte[] calcDes(byte keyIndex, byte[] initvector, byte[] dataIn, byte mode) throws PedDevException;
+2.Fixed the crash bug in PedExternalTypeA that when you pick up and down the device frequently from base.
+3.Optimized the Pinter.print(Bitmap bitmap, int cutMode, IPinterListener listener) to adapt the device without cutting knife. 
+4.Added an interface to support switch APN:
+  1):int switchAPN(String name, String newApn, String userName, String password, int authType);
+********************
+* V2.03.00 Release *
+********************
+#20180208  L1.15
+1.Added WifiProbe module.
+2.Added interfaces in Sys module.
+	1).public void beep(String params); // beep with the list of frequency parameters.
+	2).public boolean isOnBase(); // whether or not the base is in position.
+	3).public int uninstallApp(String packgeName); // uninstall app.
+	4).public int updateFirmware(String path); // update firmware.
+3.Added an interface in PED module to read rsa key.
+	1).public RSAKeyInfo readRSAKey(byte rsaKeyIndex);
+4.Fixed the bug that calling erase() would erase keys for all applications in PedKeyIsolation mode.
+5.Add an interface in Printer module to cut paper after the printing is finished.
+	1).public void print(Bitmap bitmap, int cutMode, IPinterListener listener);
+*********************
+*  V2.02.01 Release *
+*********************
+#20180109  L1.13
+1.Fixed the bug that IPedKeyIsolation can not be used on NeptuneService_V2.02.00_20171220 version.
+2.Optimize the cash drawer interface.
+*********************
+*  V2.02.00 Release *
+*********************
+#20171220  L1.13
+1.Renamed NeptuneLite to NeptuneService.
+2.Added an interface in PED module for external PED to set connection port:
+  	1):public void setPort(EUartPort port);
+3.Added an interface in Sys module to get Base information:
+ 	1):public BaseInfo getBaseInfo();
+4.Added an interface in Sys module to get the PED mode:
+  	1):public int getPedMode();
+5.Added a module named ScanCodec to support BarCode/QRCode decoding.
+6.Optimized the time consuming of PICC interaction interface. 
+7.Supported communication via the Ethernet interface on the base.
+8.Supported SM for external PED.	
+#20171110  L1.12
+1.Added two interfaces in scanner module to support continuous scan:
+  	1):public boolean setContinuousTimes(int times);
+  	2):public void setContinuousInterval(int interval);
+*********************
+*  V2.01.01 Release *
+*********************
+#20171107  L1.11
+1.Canceling the scanner by clicking the exit button will close the scanner UI properly, but the UI used to start the scanner in the APP may not disappear.
+*********************
+*  V2.01.00 Release *
+*********************
+#20171012  L1.10
+1.Added CashDrawer module.
+2.Added an asynchronous interface in Printer module to print easily with less function call:
+	1):public synchronized void print(Bitmap bitmap, final IPinterListener listener);
+#20170915  L1.9
+1.Added PedIsolation moudule which supports key isolation among apps. The entry is dal.getPedKeyIsolation(EPedType pedType).
+2.Added an interface in PED module to generate RSA keys with true random numbers:
+ 	1):public void genRSAKey(byte pvtKeyIdx, byte pubKeyIdx, short modLenBit, byte pubExpType) throws PedDevException;
+3.Added an interface in Scanner module to support timeout:
+	1):public void setTimeOut(int timeOut);
+*********************
+*  V2.00.04 Release *
+*********************
+#20170815  L1.8
+1.Added two interfaces in Printer module about cut paper:
+ 	1):public void cutPaper(int mode) throws PrinterDevException;
+ 	2):public int getCutMode() throws PrinterDevException;
+2.Fixed the bug in PED module when the checkBuf array is defined as 128 bytes in writeTIK interface KCV_MAC_INPUT_DATA mode, the array exception will report.
+3.Fixed the bug in PED module getDUKPTPin, verifyPlainPin, verifyCipherPin do not enter the password, press the confirmation key will throw the exception 97 (unknown error) to getDUKPTPin will return null and verifyPlainPin, verifyCipherPin will throw exception (PED_ERR_NO_PIN_INPUT).
+4.Fixed the bug in ICC and PICC module isoCommand unable to handle Le=256,so changed isoCommand to standard interface, Le = 0 represents all data returned, and no le represents no data returned.
+5.Fixed the bug in module DalCommManager about interface setRoute.
+6.The DeviceInfo module added the MODEM attribute.
+*********************
+*  V2.00.03 Release *
+*********************
+#20170714  L1.7
+1.Added a module named IDReader to support read china mainland ID card.
+2.Solve the problem of calling Ethernet on A920 (firmware version: V01.1.12_20170708).
+#20170711  L1.6
+1.Added an interface in PED module to set keyboard display mode in fixed sequence or random sequence:
+ 	1):public void setKeyboardRandom(boolean random) throws PedDevException;
+2.Added an interface in Sys module to read TUSN:
+ 	1):public String readTUSN();
+#20160706  L1.5
+1.Fixed the bug that throws an unknown exception when you call the getPinBlockSM4 interface without typing the password;
+2.Added an interface in PICC module to support more card type:
+  	1):public PiccCardInfo detect(byte mode) throws PiccDevException;
+3.Added an interface in DalCommManager module to disable shared network :
+  	1):public boolean disableMultiPath();
+*********************
+*  V2.00.02 Release *
+*********************
+#20170623  L1.4
+1.On the interface calcDUKPTDes, annotations are added when keyVarType is equal to 0x02.
+#20170602  L1.4
+1.Added two interface in Ped module to support AES: 
+ 	1):public void writeAesKey(EPedKeyType srcKeyType, byte srcKeyIndex, byte destkeyIndex, byte[] destKeyValue,EAesCheckMode checkMode, byte[] checkBuf) throws PedDevException;
+  	2):public byte[] calcAes(byte keyIdx, byte[] initvector, byte[] dataIn, ECryptOperate operation, ECryptOpt option)throws PedDevException;
+*********************
+*  V2.00.01 Release *
+*********************
+#20170517  L1.3
+1.Added DeviceInfo module.
+2.Support more memory cards in Icc module
+3.Added an interface in Picc module:
+	1):public byte[] cmdExchange(byte[] paucInData, int puiRecLen) throws PiccDevException.
+4.Added an interface in Sys module: 
+	1):public boolean switchSimCard(int num);
+#20170503  L1.2
+1.Optimize the efficient of datebase.
+2.Support TRSYS module.
+#20170503  L1.1
+1.Loop call the method of "getDal" cause the application crash.
+2.The external interface of "DALProxyClient" switch to "NeptuneLiteUser".
+*********************
+*  V2.00.00 Release *
+*********************
+#20170401  L1.0
+1.First Release.
+

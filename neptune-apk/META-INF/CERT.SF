@@ -1,0 +1,161 @@
+Signature-Version: 1.0
+Created-By: Android Gradle 7.1.0
+SHA1-Digest-Manifest: iNK/I2tQCnmMYsWyEqoTjznsUh0=
+X-Android-APK-Signed: 2
+
+Name: AndroidManifest.xml
+SHA1-Digest: x7Kzy840nnq45b+rfZiqBVBx8XA=
+
+Name: META-INF/com/android/build/gradle/app-metadata.properties
+SHA1-Digest: izByNlaZPeAgteCndDEb8vP4pGw=
+
+Name: assets/ServiceLog_Neptune1.0.txt
+SHA1-Digest: +0dhmn47yk/4oKPl2W98uhqo7c0=
+
+Name: assets/ServiceLog_Neptune2.0.txt
+SHA1-Digest: VSv4wfvkpdcqrVV5yqgRUyzHybk=
+
+Name: assets/ServiceLog_Neptune3.0.txt
+SHA1-Digest: 2R+PJwTEY2UgTBblKJELBXarpno=
+
+Name: assets/libDCL.so
+SHA1-Digest: gH6051Z7AN7Wh63B/I+TVA3AnUM=
+
+Name: assets/libIGLBarDecoder.so
+SHA1-Digest: AzWPyC8wbx76RRXkQ3E3R1GVKh0=
+
+Name: assets/libimgprocessing_V20160725.so
+SHA1-Digest: r7ZXAD2yxEy0GIkPe9H3e251HwU=
+
+Name: assets/libsqlcipher_V20160922.so
+SHA1-Digest: rKCuQjsGFnnLi9g4FdvedUAWmR8=
+
+Name: classes.dex
+SHA1-Digest: 536nS6yvFI0DRLOHpkcHV78WKyE=
+
+Name: lib/armeabi/libDeviceConfig.so
+SHA1-Digest: FhOx1ocqqxCywXLcruwuPEDjNec=
+
+Name: lib/armeabi/libL2_Common.so
+SHA1-Digest: bsU4GaMoSAcmJ6RhT51U/sSPZe0=
+
+Name: lib/armeabi/libL2_Conv.so
+SHA1-Digest: Dna7vsfsisfPNcaPtc6zJJFVnUk=
+
+Name: lib/armeabi/libL2_Device.so
+SHA1-Digest: KcvU77fylpBdCEYjwrHS0Mu2Mg4=
+
+Name: lib/armeabi/libL2_Public.so
+SHA1-Digest: BW58qSaIzqinHEOPwFPNV9cPqTk=
+
+Name: lib/armeabi/libSM_Android.so
+SHA1-Digest: aeREkgcCwPG/CKFzzJpkmKgqHZo=
+
+Name: lib/armeabi/libS_EMV_II.so
+SHA1-Digest: r9IbzUkPfve7uY6GWhKDo//XRZs=
+
+Name: lib/armeabi/libS_Entry.so
+SHA1-Digest: HNJukV3m3oGBhwHcFTmYrw9n0Ac=
+
+Name: lib/armeabi/libemvCallback.so
+SHA1-Digest: wlC5WTZOY1z/z7rW421dxc2LqzE=
+
+Name: lib/armeabi/libemvtrans.so
+SHA1-Digest: xvMxrPT6cGexUFsUB8J7d1B2ycU=
+
+Name: lib/armeabi/libqPBOC.so
+SHA1-Digest: u9s88wChe3RPBwNxHkddcifgNQI=
+
+Name: lib/armeabi/libsqlcipher.so
+SHA1-Digest: WMVKBLBELiWRuiFyy/5OTD51Ers=
+
+Name: net/sqlcipher/IContentObserver.aidl
+SHA1-Digest: SMEmyu1GMechZP2Kmhww0hOS6AA=
+
+Name: res/1r.xml
+SHA1-Digest: xcp+VVWuXc/OdIz+bKjwCDWFFV4=
+
+Name: res/2U.png
+SHA1-Digest: WRGgl4WKapSQxIBOTaQcRjl753g=
+
+Name: res/5X.png
+SHA1-Digest: 2OL6HRD/t1hbu+surNbwjcmB2jg=
+
+Name: res/69.png
+SHA1-Digest: bjNGEA99jtbVwK5XqeFO1xpzUVE=
+
+Name: res/CV.png
+SHA1-Digest: QvrA8jjR5YBGpggwHhmrk4//TD0=
+
+Name: res/E4.xml
+SHA1-Digest: JOWT6Z0PJ9DK/aKfM5wGabx81HU=
+
+Name: res/EY.png
+SHA1-Digest: 5RomQp58CPYzu8AWvPQCyNylluA=
+
+Name: res/Ej.xml
+SHA1-Digest: +jkmtzSvaun9P6YcAa0Gslx4pv0=
+
+Name: res/FJ.xml
+SHA1-Digest: A/DKLNlBm6tZr0nuSqPwSrOWAag=
+
+Name: res/ME.png
+SHA1-Digest: iD4GnXttzxrORoWA9FRx+ZxY/0w=
+
+Name: res/Q_.png
+SHA1-Digest: j7AH5h7WLYnN1SEy71/CrlZvRsc=
+
+Name: res/R5.xml
+SHA1-Digest: /FadjPXyGukoakYz0fCK9lrkiHQ=
+
+Name: res/ce.png
+SHA1-Digest: 4dBG2yYO09nVCp9oLW71KQuK+bI=
+
+Name: res/dG.png
+SHA1-Digest: WsiWxwO7xauwLU9F0VKBmuU5az0=
+
+Name: res/id.png
+SHA1-Digest: VOr5FBZdBHync7QYAeUfj55cBvg=
+
+Name: res/ih.png
+SHA1-Digest: szTocr6/UwyoEoHvjl3wjQpUFRE=
+
+Name: res/oO.png
+SHA1-Digest: UZE4fDxs8DzotLCQG2GtTQvxhq8=
+
+Name: res/r6.png
+SHA1-Digest: FPR/O/+tFEHAefsF/SKhRuKiwow=
+
+Name: res/rD.png
+SHA1-Digest: HqkDjdreono54yBHWRj+LlJglYA=
+
+Name: res/rz.xml
+SHA1-Digest: Gd1EeyUz/mKsgpKQ6SJZxjQJBEY=
+
+Name: res/sf.png
+SHA1-Digest: Cdo8RyybvAc2RqxO7LhhWNmewFA=
+
+Name: res/wI.png
+SHA1-Digest: Zdt8dcrV/91Xycv8ofomQrSdL8I=
+
+Name: res/wb.png
+SHA1-Digest: P8y2JZ0T/hO89tDyt+cuktpqKgk=
+
+Name: res/x8.png
+SHA1-Digest: dZLsHorlZ5hbBiBH0vEciK6NnTs=
+
+Name: res/y3.png
+SHA1-Digest: N7qT4k8N3Jb5ZtN60nzYkr5Cibw=
+
+Name: res/y_.xml
+SHA1-Digest: 5KRBx1/36+dlxOzyllGbFLYEFIM=
+
+Name: res/z1.xml
+SHA1-Digest: iKJlETEDtxBSQ+RsLUJWekHZvWo=
+
+Name: res/zA.png
+SHA1-Digest: 1SRGFDbmIG7Xn1d/KrKjSUvujTY=
+
+Name: resources.arsc
+SHA1-Digest: 4V34kRJRffBjtLUiPK8mPLi9v4U=
+

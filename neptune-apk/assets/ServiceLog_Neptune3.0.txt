@@ -1,0 +1,11 @@
+********************
+* V3.10.00 Release *
+********************
+#20200115
+1.Support for key isolation to modify key owner.
+********************
+* V3.05.00 Release *
+********************
+#20190523
+1.Support PaxStore's security layer of Card Readers;
+2.Fixed the bug that could cause NeptuneService to crash when uninstalling the application;
