@@ -4,13 +4,13 @@ plugins {
 }
 
 android {
-    namespace = "com.example.paxcheck"
+    namespace = "com.paxcheck.app"
     compileSdk {
         version = release(37)
     }
 
     defaultConfig {
-        applicationId = "com.example.paxcheck"
+        applicationId = "com.paxcheck.app"
         minSdk = 24
         targetSdk = 37
         versionCode = 1
